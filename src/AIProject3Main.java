@@ -19,15 +19,17 @@ import java.net.*;
 //import javax.sound.midi.*;
 
 //make sure this class name matches your file name, if not fix.
-public class AIProject2Main extends PApplet {
+public class AIProject3Main extends PApplet {
 
 	MelodyPlayer player; //play a midi sequence
 	MidiFileToNotes midiNotes; //read a midi file
 	ProbabilityGenerator<Integer> pitchGenerator;
 	ProbabilityGenerator<Double> rhythmGenerator;
+	
+	OrderMGenerator<Integer> orderMPitchGenerator;
 
 	public static void main(String[] args) {
-		PApplet.main("AIProject1Main"); 
+		PApplet.main("AIProject3Main"); 
 	}
 
 	//setting the window size to 300x300
@@ -41,9 +43,13 @@ public class AIProject2Main extends PApplet {
 		pitchGenerator = new ProbabilityGenerator<Integer>();
 		rhythmGenerator = new ProbabilityGenerator<Double>();
 		
+		orderMPitchGenerator = new OrderMGenerator<Integer>();
+		
 		// returns a url
-		String filePath = getPath("mid/Super_Mario_Bros_Theme.mid"); // use this for probabilistic generation
+		//String filePath = getPath("mid/Super_Mario_Bros_Theme.mid"); // use this for probabilistic generation
 		// playMidiFile(filePath);
+		String filePath = getPath("mid/MaryHadALittleLamb.mid"); // use this for probabilistic generation
+
 
 		midiNotes = new MidiFileToNotes(filePath); //creates a new MidiFileToNotes -- reminder -- ALL objects in Java must 
 												   //be created with "new". Note how every object is a pointer or reference. Every. single. one.
@@ -58,6 +64,16 @@ public class AIProject2Main extends PApplet {
 		// play the midi notes as they are in the file
 		player.setMelody(midiNotes.getPitchArray());
 		player.setRhythm(midiNotes.getRhythmArray());
+		
+		System.out.println("pitch array input: " + midiNotes.getPitchArray());
+		orderMPitchGenerator.train(midiNotes.getPitchArray());
+		
+        System.out.println("	 " + orderMPitchGenerator.getAlphabet());
+		for (int i = 0; i < orderMPitchGenerator.getUniqueAlphaSeqSize(); i++) {
+	        System.out.println(orderMPitchGenerator.getUniqueAlphaSeq(i) + " " + orderMPitchGenerator.getTransTable(i));
+		}
+
+		// orderMPitchGenerator.printTransTable();
 	}
 
 	public void draw() {
