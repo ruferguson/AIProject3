@@ -1,7 +1,11 @@
 /* Ru Ferguson
- * 28 September 2020
+ * 5 October 2020
  * 
- * This class inherits from the superclass, MarkovGenerator from Project 2 */
+ * This class inherits from the superclass, MarkovGenerator from Project 2 and takes the use of Markov
+ * Chains to another level. Now the probabilities that a note will occur takes into account the preceding
+ * sequence of order M to predict the next most likely "nice-sounding" note. The train() method formulates
+ * the probabilities and the next most probable note will be output and stored using the using the
+ * generate() method.*/
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +15,7 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 	
 	int orderM;  // the order of the Markov Chain – set this in your constructor.
 	int rowIndex;
+	int currentValue;
 	ArrayList<ArrayList<T>> uniqueAlphabetSequences;  // array of the unique sequences of size N found in your input.
 	ArrayList<T> curSequence; // the current sequence – will have to be a container
 	
@@ -18,6 +23,12 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 	OrderMGenerator() {
 		super();
 		orderM = 2;
+		uniqueAlphabetSequences = new ArrayList<ArrayList<T>>();	
+	}
+	
+	OrderMGenerator(int order) {
+		super();
+		orderM = order;
 		uniqueAlphabetSequences = new ArrayList<ArrayList<T>>();	
 	}
 	
@@ -60,53 +71,58 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 			int toIndex = fromIndex + orderM;
 
 			curSequence = new ArrayList<T>(newTokens.subList(fromIndex, toIndex)); // Create the current sequence (eg. curSequence) of size orderM from the input
-			System.out.println("curSequence is: " + curSequence);
+			// System.out.println("curSequence is: " + curSequence);
 			
 			//	2. Find curSequence in uniqueAlphabetSequences
-			int index = uniqueAlphabetSequences.indexOf(curSequence);
+			int rowIndex = uniqueAlphabetSequences.indexOf(curSequence);
 			//System.out.println("index is: " + index);
 			
-			if (index == -1) {
+			if (rowIndex == -1) {
 				rowIndex = uniqueAlphabetSequences.size();	// 1. set rowIndex to the size of uniqueAlphabetSequences
 				
 				uniqueAlphabetSequences.add(curSequence);	// 2. add the curSequence to uniqueAlphabetSequences
 
         		ArrayList<Integer> newRow = new ArrayList<Integer>(); // 3. add a new row to the transition table the size of the alphabet
         		transitionTable.add(newRow); // Then add to your transition table (the array of arrays) (expanding vertically)	
+        		// add columns of 0's here
+        		for (int j = 0; j < transitionTable.size(); j++) { // for each row
+                	ArrayList row = transitionTable.get(j);
+                	while (row.size() < alphabet.size()) {	// 3. expand transitionTable horizontally
+    	        		row.add(0); // for each array (row) in the transition table add 0 (expand horizontally)
+               		}
+    	        }
 			}
 
 			// 3.	Find the current next token (tokenIndex)
 			int tokenIndex = alphabet.indexOf(newTokens.get(i + 1)); // tokenIndex = the next index of the token in the alphabet (i+1)
-			System.out.println("newToken is: " + newTokens.get(i + 1) + " token index is: " + tokenIndex);
+			// System.out.println("newToken is: " + newTokens.get(i + 1) + " token index is: " + tokenIndex);
 			
         	if (tokenIndex == -1) {  // if tokenIndex is not found in the alphabet
         		tokenIndex = alphabet.size();	// 1. tokenIndex = size of the alphabet 
         		alphabet.add(newTokens.get(i + 1));	// 2. add the token to the alphabet
             	for (int j = 0; j < transitionTable.size(); j++) {
-                	ArrayList newColumn = transitionTable.get(j);
-                	while (newColumn.size() < alphabet.size()) {	// 3. expand transitionTable horizontally
-    	        		newColumn.add(0); // for each array (row) in the transition table add 0 (expand horizontally)
+                	ArrayList row = transitionTable.get(j);
+                	while (row.size() < alphabet.size()) {	// 3. expand transitionTable horizontally
+    	        		row.add(0); // for each array (row) in the transition table add 0 (expand horizontally)
                		}
     	        }
-				alphabet_counts.add(0);
+            	alphabet_counts.add(0);
         	}
-    		System.out.println("alphabet: " + alphabet);
+    		// System.out.println("alphabet: " + alphabet);
 			
-    		System.out.println("ttsize: " + transitionTable.size());
+    		// System.out.println("ttsize: " + transitionTable.size());
+    		//System.out.println("rowIndex: " + rowIndex);
 			// 	4.	Update the counts – since we started after the beginning, rowIndex will not be -1
-        	for (int j = 0; j < transitionTable.size(); j++) {
-            	ArrayList row = transitionTable.get(rowIndex); // 	a.	Get the row using rowIndex
-	        	for (int k = 0; k < row.size(); k++) {
-	        		if (k == tokenIndex) {  // Use the tokenIndex to index the correct column (value of the row you accessed)
-        				int currentValue = (int) row.get(k);
-        				row.set(k, currentValue + 1); // Add 1 to that value.
-                		//System.out.println("alphabet counts size: " + alphabet_counts.size());
-        				//int tempCount = alphabet_counts.get(k) + 1; // update alphabet counts
-    					//alphabet_counts.set(k, tempCount);
-        			}
-        		}
-    		}
-		
+        	ArrayList row = transitionTable.get(rowIndex); // 	a.	Get the row using rowIndex
+        	for (int k = 0; k < row.size(); k++) {
+        		if (k == tokenIndex) {  // Use the tokenIndex to index the correct column (value of the row you accessed)
+    				//currentValue = (int) ;
+    				row.set(k, (int) row.get(k) + 1); // Add 1 to that value.
+            		//System.out.println("alphabet counts size: " + alphabet_counts.size() + " k is: " + k + " current value: " + ((int) row.get(k) + 1));
+    				int tempCount = alphabet_counts.get(k) + 1; // update alphabet counts
+					alphabet_counts.set(k, tempCount);
+    			}
+    		}		
 		}
 	}
 	

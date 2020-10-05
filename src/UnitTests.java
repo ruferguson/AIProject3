@@ -1,5 +1,5 @@
 /* Ru Ferguson
- * 28 September 2020
+ * 5 October 2020
  * 
  * This class is used for the unit test methods to consolidate code more nicely. */
 
@@ -18,6 +18,8 @@ public class UnitTests extends PApplet {
 	ProbabilityGenerator<Double> rhythmGen, initRhythmGen;
 	MarkovGenerator<Integer> markovPitchGen;
 	MarkovGenerator<Double> markovRhythmGen;
+	OrderMGenerator<Integer> orderMPitchGen;
+	OrderMGenerator<Double> orderMRhythmGen;
 	
 	
 	UnitTests() {
@@ -30,6 +32,8 @@ public class UnitTests extends PApplet {
 		markovRhythmGen = new MarkovGenerator<Double>();
 		initPitchGen = new ProbabilityGenerator<Integer>();
 		initRhythmGen = new ProbabilityGenerator<Double>();
+		orderMPitchGen = new OrderMGenerator<Integer>();
+		orderMRhythmGen = new OrderMGenerator<Double>();
 	}
 	
 	void P1UnitTest1() {	// Project 1: Unit Test 1
@@ -138,6 +142,44 @@ public class UnitTests extends PApplet {
 		}
 		System.out.println("\n------------\n");	
 }
+	
+	void P3UnitTest1() {	// Project 3: Unit Test 1		
+		for (int i = 1; i < 11; i++) {
+			orderMPitchGen = new OrderMGenerator<Integer>(i);
+			orderMPitchGen.train(midiNotes.getPitchArray());
+			System.out.println("Pitches for order " + i + ":\n----Transition Table----");
+			for (int k = 0; k < i; k++) {
+				System.out.print("    ");
+			}
+			System.out.println(orderMPitchGen.getAlphabet());
+			for (int j = 0; j < orderMPitchGen.getUniqueAlphaSeqSize(); j++) {
+				System.out.println(orderMPitchGen.getUniqueAlphaSeq(j) + " " + orderMPitchGen.getProbabilities(j));
+			}
+			System.out.println("\n------------\n");
+		}
+		System.out.println("------------------------------------------------------------\n");
+		for (int i = 1; i < 11; i++) {
+			orderMRhythmGen = new OrderMGenerator<Double>(i);
+			orderMRhythmGen.train(midiNotes.getRhythmArray());
+			System.out.println("Rhythms for order " + i + ":\n----Transition Table----");
+			for (int k = 0; k < i; k++) {
+				System.out.print("     ");
+			}
+			System.out.println(orderMRhythmGen.getAlphabet());
+			for (int j = 0; j < orderMRhythmGen.getUniqueAlphaSeqSize(); j++) {
+				System.out.println(orderMRhythmGen.getUniqueAlphaSeq(j) + " " + orderMRhythmGen.getProbabilities(j));
+			}
+			System.out.println("\n------------\n");
+		}
+	}
+	
+	void P3UnitTest2() {	// Project 3: Unit Test 2
+		System.out.println("\n----WORK IN PROGRESS----\n");
+	}
+	
+	void P3UnitTest3() {	// Project 3: Unit Test 3
+		System.out.println("\n----WORK IN PROGRESS----\n");
+	}
 	
 	void trainP1() {
 		pitchGen.train(midiNotes.getPitchArray());
