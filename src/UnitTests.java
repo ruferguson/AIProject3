@@ -59,7 +59,6 @@ public class UnitTests extends PApplet {
 		System.out.println(pitchGen.generate(20));
 		System.out.println("\n20 rhythms from one melody generated from Mary Had a Little Lamb:");
 		System.out.println(rhythmGen.generate(20) + "\n------------\n");
-		
 	}
 	
 	void P1UnitTest3() {	// Project 1: Unit Test 3
@@ -173,12 +172,67 @@ public class UnitTests extends PApplet {
 		}
 	}
 	
-	void P3UnitTest2() {	// Project 3: Unit Test 2
-		System.out.println("\n----WORK IN PROGRESS----\n");
+	void P3UnitTest2() {	// Project 3: Unit Test 2	
+		System.out.println("\n------------------------------------------------------------\n");
+		for (int i = 1; i < 11; i++) {
+			orderMPitchGen = new OrderMGenerator<Integer>(i);
+			orderMRhythmGen = new OrderMGenerator<Double>(i);
+			orderMPitchGen.train(midiNotes.getPitchArray());
+			orderMRhythmGen.train(midiNotes.getRhythmArray());
+			System.out.println("Melody from Markov Chain of Order " + i);
+			System.out.println("Pitches: " + orderMPitchGen.generate(20, i, orderMPitchGen.getInitSeq(i)));
+			System.out.println("Rhythms: " + orderMRhythmGen.generate(20, i, orderMRhythmGen.getInitSeq(i)));
+			System.out.println("\n------------------------------------------------------------\n");
+		}
 	}
 	
 	void P3UnitTest3() {	// Project 3: Unit Test 3
 		System.out.println("\n----WORK IN PROGRESS----\n");
+		/* Have a function which generates 10,000 melodies of length 20, then prints out to the console the conditional
+		 * probabilities of each pitch and rhythm from that dataset (ie. it should basically print out a transition table
+		 * from the data of that 10,000 melodies)  for EACH order 1..10. Provide UI for me to run this test from your
+		 * application. Note that the 2 tables (of this unit test and the first test) should look v. similar -- at least
+		 * for the sequences that appear in Unit Test 1. This is a test of whether your markov generate() function works.
+		 * If the tables are significantly different then the generate() does not work. The one exception of this will be
+		 * any sequence that includes the rhythm 4.0. Think about why that would be so (answer is in the lecture sheet).
+		 */
+		OrderMGenerator<Integer> pitchCondProb = new OrderMGenerator<Integer>();
+		OrderMGenerator<Double> rhythmCondProb = new OrderMGenerator<Double>();
+
+		ArrayList<Integer> newSongPitches = new ArrayList<Integer>();
+		ArrayList<Double> newSongRhythms = new ArrayList<Double>();	
+		
+		for (int i = 1; i < 11; i++) {
+			orderMPitchGen = new OrderMGenerator<Integer>(i);
+			orderMRhythmGen = new OrderMGenerator<Double>(i);
+			orderMPitchGen.train(midiNotes.getPitchArray());
+			orderMRhythmGen.train(midiNotes.getRhythmArray());
+			for (int j = 0; j < 9999; j++) {
+				newSongPitches = orderMPitchGen.generate(20, i, orderMPitchGen.getInitSeq(i));
+				newSongRhythms = orderMRhythmGen.generate(20, i, orderMRhythmGen.getInitSeq(i));
+				pitchCondProb.train(newSongPitches);
+				rhythmCondProb.train(newSongRhythms);
+			}
+
+			System.out.println("Probability of Generated Pitches after 10,000 iterations of 20 note melodies for order " + i + ":\n----Transition Table----");
+			for (int k = 0; k < i; k++) {
+				System.out.print("    ");
+			}
+			System.out.println(pitchCondProb.getAlphabet());
+			for (int j = 0; j < pitchCondProb.getUniqueAlphaSeqSize(); j++) {
+				System.out.println(pitchCondProb.getUniqueAlphaSeq(j) + " " + pitchCondProb.getProbabilities(j));
+			}
+			System.out.println("\n------------\n");
+			System.out.println("Probability of Generated Rhythms after 10,000 iterations of 20 note melodies for order " + i + ":\n----Transition Table----");
+			for (int k = 0; k < i; k++) {
+				System.out.print("     ");
+			}
+			System.out.println(rhythmCondProb.getAlphabet());
+			for (int j = 0; j < rhythmCondProb.getUniqueAlphaSeqSize(); j++) {
+				System.out.println(rhythmCondProb.getUniqueAlphaSeq(j) + " " + rhythmCondProb.getProbabilities(j));
+			}
+			System.out.println("\n------------\n");
+		}		
 	}
 	
 	void trainP1() {

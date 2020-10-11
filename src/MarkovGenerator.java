@@ -164,6 +164,14 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
 		return newSequence;
 	}
 	
+	// this calls the above with a random initToken using the probability generator from Project 1
+	T generate() {
+		initTokenGenerator.train(alphabet);
+		T initToken = initTokenGenerator.generate(initTokenGenerator.getProbabilities());
+
+		return initToken;
+	}
+	
 }
 	
 	
