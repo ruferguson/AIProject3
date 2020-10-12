@@ -37,7 +37,6 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 	
 	// returns the an ArrayList of row i from the uniqueAlphabetSequences
 	public ArrayList<T> getUniqueAlphaSeq(int i) {
-		// System.out.println("uniqueAlphabetSequences: " + uniqueAlphabetSequences);
 		return uniqueAlphabetSequences.get(i);
 	}
 	
@@ -57,8 +56,6 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 		} else {
 			initSeq = initTokenGen.generate(orderM);
 		}
-		
-		// System.out.println("get Init seq returns: " + initSeq);
 		return initSeq;
 	}
 	
@@ -90,10 +87,10 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 			}
 
 			// Find the current next token (tokenIndex)
-			int tokenIndex = alphabet.indexOf(inputTokens.get(i + 1));	// tokenIndex = the next index of the token in the alphabet (i+1)
-        	if (tokenIndex == -1) {	// if tokenIndex is not found in the alphabet
+			int tokenIndex = alphabet.indexOf(inputTokens.get(i + 1));	// tokenIndex = the next index of the token in the alphabet (i+1)  		
+			if (tokenIndex == -1) {	// if tokenIndex is not found in the alphabet	    		
         		tokenIndex = alphabet.size();	// tokenIndex = size of the alphabet 
-        		alphabet.add(inputTokens.get(i + 1));	// add the token to the alphabet
+        		alphabet.add(inputTokens.get(i + 1));	// add the token to the alphabet            		
             	expandHorizontally();
             	alphabet_counts.add(0);
         	}
@@ -108,74 +105,37 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
     			}
     		}		
 		}
-		
 		initTokenGen.train(inputTokens);;
 	}
 	
 	T generate(ArrayList initSeq) {
-		//System.out.println("TOP init Seq is: " + initSeq);
 		int curSeqIndex  = uniqueAlphabetSequences.indexOf(initSeq);	// find the index of initSeq in uniqueAlphabetSequence 
-
-		//System.out.println("unique alphabet sequences are: " + uniqueAlphabetSequences);
-		//System.out.println("init Seq is: " + initSeq);
-
 		while (curSeqIndex == -1) {	// initSeq is not found 
 			initSeq = getInitSeq();
-			//System.out.println("init Seq is: " + initSeq);
 			curSeqIndex = uniqueAlphabetSequences.indexOf(initSeq);
-			//System.out.println("current sequence index is: " + curSeqIndex);
-			// newToken = initTokenGen.generate();	// generate from a trained markov chain 1
-			// System.out.println("new token is: " + newToken);
-			// System.out.println("in while");
 		}
 		if (curSeqIndex != -1) {
-			//System.out.println("in if");
-			// System.out.println("token row is: " + tokenRow);
-			//System.out.println("ttrow is: " + getProbabilities(curSeqIndex));	
-			
-			// 1. find the row in the transition table using curSeqIndex
-			// 2. generate from that row using your Probability Generator 
 			if (getRowTotal(curSeqIndex) == 0) {	// note: remember to handle 0% probability across all tokens
 				newToken = generate(getProbabilities());
-			//	System.out.println("row total is 0");
 			} else {
 				newToken = initTokenGen.generate(getProbabilities(curSeqIndex));	// else use the probability distribution from the transition table
-			//	System.out.println("generating new token . . . : " + newToken);
 			}
 			
 		}
-		
-		// System.out.println("new Token is: " + newToken);
-
 		return newToken;
 	}
 
 	ArrayList<T> generate(int length, ArrayList<T> initSeq) {
-		// System.out.println("init sequence is: " + initSeq);
-
 		T newToken = null;
 		ArrayList<T> outputMelody = new ArrayList<T>();	// create an ArrayList of T - outputMelody
 		
 		for (int i = 0; i < length; i++) {
-			
 			newToken = generate(initSeq);	// 1.	call your single generate using your initSeq
-			//System.out.println("1. init sequence is: " + initSeq);
-
 			initSeq.remove(0);	// 2.	remove the first token you added from your initSeq
-			//System.out.println("2. init sequence is: " + initSeq);
-
 			initSeq.add(newToken);	// 3.	add the generated token to your initSeq
-			//System.out.println("3. init sequence is: " + initSeq);
-			
 			outputMelody.add(newToken);	// 4.	add the generated token to outputMelody
-			// initSeq.remove(initSeq.size() - 1);	// 5.	remove the first token off the top of the initSeq
 		}
 		
 		return outputMelody;
 	}
-	//question: what is the behavior of the initSeq in this algorithm?
-	//answer: its first-in, first-out (FIFO) – so it is like a queue
-	//note: another route is to just use sublists from your outputMelody as your initSeqs 
-	
-	// this calls the above with a random initToken using the probability generator from Project 1
 }

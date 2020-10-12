@@ -168,7 +168,7 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
 		return newSequence;
 	}
 	
-	// this calls the above with a random initToken using the probability generator from Project 1
+	// this calls the above and generates a singular random initToken using the probability generator from Project 1
 	T generate() {
 		initTokenGen.train(alphabet);
 		T initToken = initTokenGen.generate(initTokenGen.getProbabilities());
