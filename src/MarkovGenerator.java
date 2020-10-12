@@ -12,10 +12,11 @@ import java.util.Arrays;
 public class MarkovGenerator<T> extends ProbabilityGenerator<T> {	
 	
     ArrayList<ArrayList<Integer>> transitionTable = new ArrayList();	// a 2D array representing your transition tables – an array of arrays
-	ProbabilityGenerator<T> initTokenGenerator = new ProbabilityGenerator<T>();
+	ProbabilityGenerator<T> initTokenGen = new ProbabilityGenerator<T>();
 	int ttRow;
 	T newToken;
     
+	
 	// inherits from ProbabilityGenerator
 	MarkovGenerator() {
 		super();
@@ -29,7 +30,7 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
 	
 	
 	// prints the transition table
-	void printTransTable () {	
+	void printTransTable() {	
 		for (int j = 0; j < transitionTable.size(); j++) {
 
             ArrayList row = transitionTable.get(j);
@@ -52,7 +53,7 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
 	}
 	
 	
-	// adds the probabilities to an ArrayList called probabilities
+	// gets probabilities from row i in the transition table
 	public ArrayList<Double> getProbabilities(int i) { 
 		ArrayList row = transitionTable.get(i);
 		for (int j = 0; j < row.size(); j++) {
@@ -66,8 +67,17 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
 			}
 			probabilities.set(j, newProb); 
 		}
-		
 		return probabilities;
+	}
+	
+	// expand the transition table horizontally to make a square
+	void expandHorizontally() {
+		for (int j = 0; j < transitionTable.size(); j++) {
+    		ArrayList row = transitionTable.get(j);
+    		while (row.size() < transitionTable.size()) {
+    			row.add(0); // for each array (row) in the transition table add 0 (expand horizontally)
+    		}
+		}
 	}
 	
 	
@@ -82,14 +92,8 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
         		tokenIndex = alphabet.size();
         		ArrayList<Integer> newRow = new ArrayList<Integer>(); // Create a new array that is the size of the alphabet 
         		transitionTable.add(newRow); // Then add to your transition table (the array of arrays) (expanding vertically)
-            	for (int j = 0; j < transitionTable.size(); j++) {
-                		ArrayList row = transitionTable.get(j);
-                		while (row.size() < transitionTable.size()) {
-    	        			row.add(0); // for each array (row) in the transition table add 0 (expand horizontally)
-                		}
-    	        }
+            	expandHorizontally();
             	alphabet.add(inputTokens.get(i)); // add the token to the alphabet array
-        		
 				alphabet_counts.add(0);
             }
         	
@@ -152,9 +156,9 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
 	
 	// this calls the above with a random initToken using the probability generator from Project 1
 	ArrayList<T> generate(int length) {
-		initTokenGenerator.train(alphabet);
+		initTokenGen.train(alphabet);
 		
-		T initToken = initTokenGenerator.generate(initTokenGenerator.getProbabilities());
+		T initToken = initTokenGen.generate(initTokenGen.getProbabilities());
 		
 		generate(length, initToken);
 		ArrayList<T> newSequence = new ArrayList<T>();
@@ -166,12 +170,12 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
 	
 	// this calls the above with a random initToken using the probability generator from Project 1
 	T generate() {
-		initTokenGenerator.train(alphabet);
-		T initToken = initTokenGenerator.generate(initTokenGenerator.getProbabilities());
-
+		initTokenGen.train(alphabet);
+		T initToken = initTokenGen.generate(initTokenGen.getProbabilities());
+		
+		// System.out.println("probs are: " + getProbDist(getProbabilities()));
 		return initToken;
 	}
-	
 }
 	
 	

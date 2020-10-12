@@ -72,8 +72,7 @@ public class ProbabilityGenerator<T> {
 			}
 			probabilities.set(i, (double) alphabet_counts.get(i) / getTotal()); 
 		}
-		// System.out.println("calling regular get probabilities");
-
+		
 		return probabilities;
 	}
 	
@@ -121,6 +120,7 @@ public class ProbabilityGenerator<T> {
 	
 	// this function generates a new token
 	T generate(ArrayList<Double> probabilities) {	// added the probabilities parameter so that the Markov generator would work
+		// System.out.println("using prob dist");
 		
 		getProbDist(probabilities);
 		T newToken = null;

@@ -37,6 +37,7 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 	
 	// returns the an ArrayList of row i from the uniqueAlphabetSequences
 	public ArrayList<T> getUniqueAlphaSeq(int i) {
+		// System.out.println("uniqueAlphabetSequences: " + uniqueAlphabetSequences);
 		return uniqueAlphabetSequences.get(i);
 	}
 	
@@ -45,38 +46,47 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 		return uniqueAlphabetSequences.size();
 	}
 	
-	public ArrayList getInitSeq(int i) {
-		if (i == 1) {
+	
+	public ArrayList getInitSeq() {
+		if (orderM == 1) {
 			T initToken = (T) generate();
-			initSeq.add(initToken);
-		} else {
-			for (int j = 0; j < i; j++) {
-				T initToken = initTokenGen.generate();
-				initSeq.add(initToken);
+			if (initSeq.isEmpty()) {
+				initSeq.add(0, initToken);
 			}
+			initSeq.set(0, initToken);
+		} else {
+			initSeq = initTokenGen.generate(orderM);
 		}
 		
 		// System.out.println("get Init seq returns: " + initSeq);
 		return initSeq;
 	}
+	
+	
+	// expand the transition table horizontally size of alphabet
+	void expandHorizontally() {
+		for (int j = 0; j < transitionTable.size(); j++) {
+    		ArrayList row = transitionTable.get(j);
+    		while (row.size() < alphabet.size()) {
+    			row.add(0); // for each array (row) in the transition table add 0 (expand horizontally)
+    		}
+		}
+	}
+	
 		
 	void train(ArrayList<T> inputTokens) {
 		for (int i = orderM - 1; i < inputTokens.size() - 1; i++) {
 			int fromIndex = i - (orderM - 1);
 			int toIndex = fromIndex + orderM;
 			curSequence = new ArrayList<T>(inputTokens.subList(fromIndex, toIndex));	// create the current sequence (eg. curSequence) of size orderM from the input
+			
 			int rowIndex = uniqueAlphabetSequences.indexOf(curSequence);	// find curSequence in uniqueAlphabetSequences			
 			if (rowIndex == -1) {
 				rowIndex = uniqueAlphabetSequences.size();	// set rowIndex to the size of uniqueAlphabetSequences
 				uniqueAlphabetSequences.add(curSequence);	// add the curSequence to uniqueAlphabetSequences
         		ArrayList<Integer> newRow = new ArrayList<Integer>();	// add a new row to the transition table the size of the alphabet
         		transitionTable.add(newRow);	// add to your transition table (the array of arrays) (expanding vertically)	
-        		for (int j = 0; j < transitionTable.size(); j++) {	// for each row
-                	ArrayList row = transitionTable.get(j);
-                	while (row.size() < alphabet.size()) {	// expand transitionTable horizontally
-    	        		row.add(0);	// for each array (row) in the transition table add 0 (expand horizontally)
-               		}
-    	        }
+        		expandHorizontally();
 			}
 
 			// Find the current next token (tokenIndex)
@@ -84,12 +94,7 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
         	if (tokenIndex == -1) {	// if tokenIndex is not found in the alphabet
         		tokenIndex = alphabet.size();	// tokenIndex = size of the alphabet 
         		alphabet.add(inputTokens.get(i + 1));	// add the token to the alphabet
-            	for (int j = 0; j < transitionTable.size(); j++) {
-                	ArrayList row = transitionTable.get(j);
-                	while (row.size() < alphabet.size()) {	// expand transitionTable horizontally
-    	        		row.add(0); // for each array (row) in the transition table add 0 (expand horizontally)
-               		}
-    	        }
+            	expandHorizontally();
             	alphabet_counts.add(0);
         	}
 			
@@ -107,26 +112,37 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 		initTokenGen.train(inputTokens);;
 	}
 	
-	T generate(ArrayList initSeq) { // WORK IN PROGRESS
+	T generate(ArrayList initSeq) {
+		//System.out.println("TOP init Seq is: " + initSeq);
 		int curSeqIndex  = uniqueAlphabetSequences.indexOf(initSeq);	// find the index of initSeq in uniqueAlphabetSequence 
-		// T tokenRow = null;
 
-		// System.out.println("unique alphabet sequences are: " + uniqueAlphabetSequences);
-		// System.out.println("current sequence index is: " + curSeqIndex);
+		//System.out.println("unique alphabet sequences are: " + uniqueAlphabetSequences);
+		//System.out.println("init Seq is: " + initSeq);
 
-		if(curSeqIndex == -1) {	// initSeq is not found 
-			newToken = initTokenGen.generate();	// generate from a trained markov chain 1
+		while (curSeqIndex == -1) {	// initSeq is not found 
+			initSeq = getInitSeq();
+			//System.out.println("init Seq is: " + initSeq);
+			curSeqIndex = uniqueAlphabetSequences.indexOf(initSeq);
+			//System.out.println("current sequence index is: " + curSeqIndex);
+			// newToken = initTokenGen.generate();	// generate from a trained markov chain 1
 			// System.out.println("new token is: " + newToken);
-		} else {
+			// System.out.println("in while");
+		}
+		if (curSeqIndex != -1) {
+			//System.out.println("in if");
 			// System.out.println("token row is: " + tokenRow);
-			//System.out.println("ttrow is: " + getProbabilities(curSeqIndex));	// 1. find the row in the transition table using curSeqIndex  
-			if (getRowTotal(curSeqIndex) == 0) { // if there is 0% chance use random probability from original probability generator
-				newToken = generate(getProbabilities());
-			} else {
-				newToken = generate(getProbabilities(curSeqIndex)); // else use the probability distribution from the transition table
-			}
+			//System.out.println("ttrow is: " + getProbabilities(curSeqIndex));	
+			
+			// 1. find the row in the transition table using curSeqIndex
 			// 2. generate from that row using your Probability Generator 
-			// note: remember to handle 0% probability across all tokens
+			if (getRowTotal(curSeqIndex) == 0) {	// note: remember to handle 0% probability across all tokens
+				newToken = generate(getProbabilities());
+			//	System.out.println("row total is 0");
+			} else {
+				newToken = initTokenGen.generate(getProbabilities(curSeqIndex));	// else use the probability distribution from the transition table
+			//	System.out.println("generating new token . . . : " + newToken);
+			}
+			
 		}
 		
 		// System.out.println("new Token is: " + newToken);
@@ -134,18 +150,23 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 		return newToken;
 	}
 
-	ArrayList<T> generate(int length, int order, ArrayList<T> initSeq) {
+	ArrayList<T> generate(int length, ArrayList<T> initSeq) {
 		// System.out.println("init sequence is: " + initSeq);
 
 		T newToken = null;
 		ArrayList<T> outputMelody = new ArrayList<T>();	// create an ArrayList of T - outputMelody
 		
 		for (int i = 0; i < length; i++) {
+			
 			newToken = generate(initSeq);	// 1.	call your single generate using your initSeq
+			//System.out.println("1. init sequence is: " + initSeq);
 
 			initSeq.remove(0);	// 2.	remove the first token you added from your initSeq
+			//System.out.println("2. init sequence is: " + initSeq);
+
 			initSeq.add(newToken);	// 3.	add the generated token to your initSeq
-			// System.out.println("init sequence is: " + initSeq);
+			//System.out.println("3. init sequence is: " + initSeq);
+			
 			outputMelody.add(newToken);	// 4.	add the generated token to outputMelody
 			// initSeq.remove(initSeq.size() - 1);	// 5.	remove the first token off the top of the initSeq
 		}

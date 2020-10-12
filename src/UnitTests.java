@@ -180,8 +180,8 @@ public class UnitTests extends PApplet {
 			orderMPitchGen.train(midiNotes.getPitchArray());
 			orderMRhythmGen.train(midiNotes.getRhythmArray());
 			System.out.println("Melody from Markov Chain of Order " + i);
-			System.out.println("Pitches: " + orderMPitchGen.generate(20, i, orderMPitchGen.getInitSeq(i)));
-			System.out.println("Rhythms: " + orderMRhythmGen.generate(20, i, orderMRhythmGen.getInitSeq(i)));
+			System.out.println("Pitches: " + orderMPitchGen.generate(20, orderMPitchGen.getInitSeq()));
+			System.out.println("Rhythms: " + orderMRhythmGen.generate(20, orderMRhythmGen.getInitSeq()));
 			System.out.println("\n------------------------------------------------------------\n");
 		}
 	}
@@ -196,8 +196,8 @@ public class UnitTests extends PApplet {
 		 * If the tables are significantly different then the generate() does not work. The one exception of this will be
 		 * any sequence that includes the rhythm 4.0. Think about why that would be so (answer is in the lecture sheet).
 		 */
-		OrderMGenerator<Integer> pitchCondProb = new OrderMGenerator<Integer>();
-		OrderMGenerator<Double> rhythmCondProb = new OrderMGenerator<Double>();
+		OrderMGenerator<Integer> pitchCondProb;
+		OrderMGenerator<Double> rhythmCondProb;
 
 		ArrayList<Integer> newSongPitches = new ArrayList<Integer>();
 		ArrayList<Double> newSongRhythms = new ArrayList<Double>();	
@@ -207,9 +207,13 @@ public class UnitTests extends PApplet {
 			orderMRhythmGen = new OrderMGenerator<Double>(i);
 			orderMPitchGen.train(midiNotes.getPitchArray());
 			orderMRhythmGen.train(midiNotes.getRhythmArray());
+			
+			pitchCondProb = new OrderMGenerator<Integer>(i);
+			rhythmCondProb = new OrderMGenerator<Double>(i);
+			
 			for (int j = 0; j < 9999; j++) {
-				newSongPitches = orderMPitchGen.generate(20, i, orderMPitchGen.getInitSeq(i));
-				newSongRhythms = orderMRhythmGen.generate(20, i, orderMRhythmGen.getInitSeq(i));
+				newSongPitches = orderMPitchGen.generate(20, orderMPitchGen.getInitSeq());
+				newSongRhythms = orderMRhythmGen.generate(20, orderMRhythmGen.getInitSeq());
 				pitchCondProb.train(newSongPitches);
 				rhythmCondProb.train(newSongRhythms);
 			}
