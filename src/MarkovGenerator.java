@@ -177,5 +177,3 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
 		return initToken;
 	}
 }
-	
-	

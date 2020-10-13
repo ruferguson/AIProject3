@@ -180,10 +180,10 @@ public class UnitTests extends PApplet {
 	}
 	
 	void P3UnitTest3() {	// Project 3: Unit Test 3
-		newSong();
 		
 		for (int i = 1; i < 11; i++) {
 			trainP3(i);
+			newSong();
 			
 			pitchCondProb = new OrderMGenerator<Integer>(i);
 			rhythmCondProb = new OrderMGenerator<Double>(i);

@@ -134,10 +134,7 @@ public class ProbabilityGenerator<T> {
 				found = true;
 			}
 			i++;
-		}						
-		//System.out.println("probabilites are: " + probabilities);
-		//System.out.println("using prob dist: " + getProbDist(probabilities));
-
+		}
 		return newToken;
 	} 
 	

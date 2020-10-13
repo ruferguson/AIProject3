@@ -116,9 +116,9 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 		}
 		if (curSeqIndex != -1) {
 			if (getRowTotal(curSeqIndex) == 0) {	// note: remember to handle 0% probability across all tokens
-				newToken = generate(getProbabilities());
+				newToken = initTokenGen.generate((T) (initSeq.get(initSeq.size() - 1)));	// else use the probability distribution from the transition table
 			} else {
-				newToken = initTokenGen.generate(getProbabilities(curSeqIndex));	// else use the probability distribution from the transition table
+				newToken = super.generate(getProbabilities(curSeqIndex));	// else use the probability distribution from the transition table
 			}
 			
 		}
