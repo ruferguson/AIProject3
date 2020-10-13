@@ -1,5 +1,5 @@
 /* Ru Ferguson
- * 5 October 2020
+ * 12 October 2020
  * 
  * This class inherits from the superclass, MarkovGenerator from Project 2 and takes the use of Markov
  * Chains to another level. Now the probabilities that a note will occur takes into account the preceding
@@ -28,7 +28,7 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 		orderM = 2;
 		uniqueAlphabetSequences = new ArrayList<ArrayList<T>>();	
 	}
-	
+	 
 	OrderMGenerator(int order) {
 		super();
 		orderM = order;
@@ -108,7 +108,8 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 		initTokenGen.train(inputTokens);;
 	}
 	
-	T generate(ArrayList initSeq) {
+	
+	T generateOrderM(ArrayList initSeq) {
 		int curSeqIndex  = uniqueAlphabetSequences.indexOf(initSeq);	// find the index of initSeq in uniqueAlphabetSequence 
 		while (curSeqIndex == -1) {	// initSeq is not found 
 			initSeq = getInitSeq();
@@ -120,20 +121,20 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 			} else {
 				newToken = super.generate(getProbabilities(curSeqIndex));	// else use the probability distribution from the transition table
 			}
-			
 		}
 		return newToken;
 	}
 
+	
 	ArrayList<T> generate(int length, ArrayList<T> initSeq) {
 		T newToken = null;
 		ArrayList<T> outputMelody = new ArrayList<T>();	// create an ArrayList of T - outputMelody
 		
 		for (int i = 0; i < length; i++) {
-			newToken = generate(initSeq);	// 1.	call your single generate using your initSeq
-			initSeq.remove(0);	// 2.	remove the first token you added from your initSeq
-			initSeq.add(newToken);	// 3.	add the generated token to your initSeq
-			outputMelody.add(newToken);	// 4.	add the generated token to outputMelody
+			newToken = generateOrderM(initSeq);	// 	call your single generate using your initSeq
+			initSeq.remove(0);	// 	remove the first token you added from your initSeq
+			initSeq.add(newToken);	// 	add the generated token to your initSeq
+			outputMelody.add(newToken);	//	add the generated token to outputMelody
 		}
 		
 		return outputMelody;

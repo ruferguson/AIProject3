@@ -1,5 +1,5 @@
 /* Ru Ferguson
- * 5 October 2020
+ * 12 October 2020
  * 
  * This class is used for the unit test methods to consolidate code more nicely. */
 
@@ -18,10 +18,8 @@ public class UnitTests extends PApplet {
 	ProbabilityGenerator<Double> rhythmGen, initRhythmGen;
 	MarkovGenerator<Integer> markovPitchGen;
 	MarkovGenerator<Double> markovRhythmGen;
-	OrderMGenerator<Integer> orderMPitchGen;
-	OrderMGenerator<Double> orderMRhythmGen;
-	OrderMGenerator<Integer> pitchCondProb;
-	OrderMGenerator<Double> rhythmCondProb;
+	OrderMGenerator<Integer> orderMPitchGen, pitchCondProb;
+	OrderMGenerator<Double> orderMRhythmGen, rhythmCondProb;
 	ArrayList<Integer> newSongPitches;
 	ArrayList<Double> newSongRhythms;
 	
@@ -76,7 +74,7 @@ public class UnitTests extends PApplet {
 		melodyPitchGen.train(midiNotes.getPitchArray());
 		melodyRhythmGen.train(midiNotes.getRhythmArray());
 
-		for (int i = 0; i < 9999; i++) {
+		for (int i = 0; i < 10000; i++) {
 			newSongPitches = melodyPitchGen.generate(20);
 			newSongRhythms = melodyRhythmGen.generate(20);	
 			probDistPitchGen.train(newSongPitches);
@@ -124,7 +122,7 @@ public class UnitTests extends PApplet {
 		MarkovGenerator<Double> ttDistRhythmGen = new MarkovGenerator<Double>();
 		newSong();
 		
-		for (int i = 0; i < 9999; i++) {
+		for (int i = 0; i < 10000; i++) {
 			newSongPitches = markovPitchGen.generate(20, initPitchGen.generate(initPitchGen.getProbabilities()));
 			newSongRhythms = markovRhythmGen.generate(20, initRhythmGen.generate(initRhythmGen.getProbabilities()));
 			ttDistPitchGen.train(newSongPitches);
@@ -179,22 +177,20 @@ public class UnitTests extends PApplet {
 		}
 	}
 	
-	void P3UnitTest3() {	// Project 3: Unit Test 3
-		
+	void P3UnitTest3() {	// Project 3: Unit Test 3	
 		for (int i = 1; i < 11; i++) {
 			trainP3(i);
 			newSong();
-			
 			pitchCondProb = new OrderMGenerator<Integer>(i);
 			rhythmCondProb = new OrderMGenerator<Double>(i);
-
-			for (int j = 0; j < 9999; j++) {
+			
+			for (int j = 0; j < 10000; j++) {
 				newSongPitches = orderMPitchGen.generate(20, orderMPitchGen.getInitSeq());
 				newSongRhythms = orderMRhythmGen.generate(20, orderMRhythmGen.getInitSeq());
 				pitchCondProb.train(newSongPitches);
 				rhythmCondProb.train(newSongRhythms);
 			}
-
+			
 			System.out.println("Probability of Generated Pitches after 10,000 iterations of 20 note melodies for order " + i + ":\n----Transition Table----");
 			makeSpace(i);
 			System.out.println(pitchCondProb.getAlphabet());
