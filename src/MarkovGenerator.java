@@ -172,8 +172,6 @@ public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
 	T generate() {
 		initTokenGen.train(alphabet);
 		T initToken = initTokenGen.generate(initTokenGen.getProbabilities());
-		
-		// System.out.println("probs are: " + getProbDist(getProbabilities()));
 		return initToken;
 	}
 }

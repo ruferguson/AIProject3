@@ -20,19 +20,22 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 	ArrayList<T> curSequence; // the current sequence – will have to be a container
 	MarkovGenerator<T> initTokenGen = new MarkovGenerator<T>();
 	ArrayList initSeq = new ArrayList();
+	ArrayList<ArrayList<T>> uniqueAlphaInitToken;
 
 	
 	// inherits from MarkovGenerator
 	OrderMGenerator() {
 		super();
 		orderM = 2;
-		uniqueAlphabetSequences = new ArrayList<ArrayList<T>>();	
+		uniqueAlphabetSequences = new ArrayList<ArrayList<T>>();
+		uniqueAlphaInitToken  = new ArrayList<ArrayList<T>>();
 	}
 	 
 	OrderMGenerator(int order) {
 		super();
 		orderM = order;
 		uniqueAlphabetSequences = new ArrayList<ArrayList<T>>();	
+		uniqueAlphaInitToken  = new ArrayList<ArrayList<T>>();
 	}
 	
 	// returns the an ArrayList of row i from the uniqueAlphabetSequences
@@ -46,6 +49,13 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 	}
 	
 	
+	public ArrayList getUniqueAlphaInitSeq() {
+		int n = (int) (Math.random() * uniqueAlphaInitToken.size());
+		initSeq = uniqueAlphaInitToken.get(n);
+		return initSeq;
+	}
+	
+	
 	public ArrayList getInitSeq() {
 		if (orderM == 1) {
 			T initToken = (T) generate();
@@ -56,6 +66,7 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 		} else {
 			initSeq = initTokenGen.generate(orderM);
 		}
+		
 		return initSeq;
 	}
 	
@@ -80,7 +91,10 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 			int rowIndex = uniqueAlphabetSequences.indexOf(curSequence);	// find curSequence in uniqueAlphabetSequences			
 			if (rowIndex == -1) {
 				rowIndex = uniqueAlphabetSequences.size();	// set rowIndex to the size of uniqueAlphabetSequences
+				rowIndex = uniqueAlphaInitToken.size();
 				uniqueAlphabetSequences.add(curSequence);	// add the curSequence to uniqueAlphabetSequences
+				uniqueAlphaInitToken.add(curSequence);
+								
         		ArrayList<Integer> newRow = new ArrayList<Integer>();	// add a new row to the transition table the size of the alphabet
         		transitionTable.add(newRow);	// add to your transition table (the array of arrays) (expanding vertically)	
         		expandHorizontally();
@@ -105,21 +119,22 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
     			}
     		}		
 		}
+
 		initTokenGen.train(inputTokens);;
 	}
 	
 	
-	T generateOrderM(ArrayList initSeq) {
+	T generateOrderM(ArrayList<T> initSeq) {
 		int curSeqIndex  = uniqueAlphabetSequences.indexOf(initSeq);	// find the index of initSeq in uniqueAlphabetSequence 
 		while (curSeqIndex == -1) {	// initSeq is not found 
-			initSeq = getInitSeq();
+			initSeq = getUniqueAlphaInitSeq();
 			curSeqIndex = uniqueAlphabetSequences.indexOf(initSeq);
 		}
 		if (curSeqIndex != -1) {
 			if (getRowTotal(curSeqIndex) == 0) {	// note: remember to handle 0% probability across all tokens
-				newToken = initTokenGen.generate((T) (initSeq.get(initSeq.size() - 1)));	// else use the probability distribution from the transition table
+				newToken = initTokenGen.generate((T) (initSeq.get(initSeq.size() - 1)));	// use markov chain 1
 			} else {
-				newToken = super.generate(getProbabilities(curSeqIndex));	// else use the probability distribution from the transition table
+				newToken = super.generate(getProbabilities(curSeqIndex));	// else use the probability distribution from the probability generator
 			}
 		}
 		return newToken;
@@ -127,6 +142,7 @@ public class OrderMGenerator<T> extends MarkovGenerator<T> {
 
 	
 	ArrayList<T> generate(int length, ArrayList<T> initSeq) {
+		
 		T newToken = null;
 		ArrayList<T> outputMelody = new ArrayList<T>();	// create an ArrayList of T - outputMelody
 		

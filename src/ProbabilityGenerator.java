@@ -120,8 +120,7 @@ public class ProbabilityGenerator<T> {
 	
 	// this function generates a new token
 	T generate(ArrayList<Double> probabilities) {	// added the probabilities parameter so that the Markov generator would work
-		
-		getProbDist(probabilities);
+		getProbDist(probabilities);		
 		T newToken = null;
 		
 		double rIndex = (double) Math.random();		// generate a random double between 0 and 1

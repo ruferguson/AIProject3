@@ -181,8 +181,6 @@ public class UnitTests extends PApplet {
 		for (int i = 1; i < 11; i++) {
 			trainP3(i);
 			newSong();
-			pitchCondProb = new OrderMGenerator<Integer>(i);
-			rhythmCondProb = new OrderMGenerator<Double>(i);
 			
 			for (int j = 0; j < 10000; j++) {
 				newSongPitches = orderMPitchGen.generate(20, orderMPitchGen.getInitSeq());
@@ -194,14 +192,43 @@ public class UnitTests extends PApplet {
 			System.out.println("Probability of Generated Pitches after 10,000 iterations of 20 note melodies for order " + i + ":\n----Transition Table----");
 			makeSpace(i);
 			System.out.println(pitchCondProb.getAlphabet());
-			for (int j = 0; j < orderMPitchGen.getUniqueAlphaSeqSize(); j++) {
+			for (int j = 0; j < pitchCondProb.getUniqueAlphaSeqSize(); j++) {
 				System.out.println(pitchCondProb.getUniqueAlphaSeq(j) + " " + pitchCondProb.getProbabilities(j));
 			}
 			System.out.println("\n------------\n");
 			System.out.println("Probability of Generated Rhythms after 10,000 iterations of 20 note melodies for order " + i + ":\n----Transition Table----");
 			makeSpace(i);
 			System.out.println(rhythmCondProb.getAlphabet());
-			for (int j = 0; j < orderMRhythmGen.getUniqueAlphaSeqSize(); j++) {
+			for (int j = 0; j < rhythmCondProb.getUniqueAlphaSeqSize(); j++) {
+				System.out.println(rhythmCondProb.getUniqueAlphaSeq(j) + " " + rhythmCondProb.getProbabilities(j));
+			}
+			System.out.println("\n------------\n");
+		}		
+	}
+	
+	void P3UnitTest3Faster() {	// Project 3: Unit Test 3	
+		for (int i = 1; i < 11; i++) {
+			trainP3(i);
+			newSong();
+			
+			for (int j = 0; j < 10000; j++) {
+				newSongPitches = orderMPitchGen.generate(20, orderMPitchGen.getUniqueAlphaInitSeq());
+				newSongRhythms = orderMRhythmGen.generate(20, orderMRhythmGen.getUniqueAlphaInitSeq());
+				pitchCondProb.train(newSongPitches);
+				rhythmCondProb.train(newSongRhythms);
+			}
+			
+			System.out.println("Probability of Generated Pitches after 10,000 iterations of 20 note melodies for order " + i + ":\n----Transition Table----");
+			makeSpace(i);
+			System.out.println(pitchCondProb.getAlphabet());
+			for (int j = 0; j < pitchCondProb.getUniqueAlphaSeqSize(); j++) {
+				System.out.println(pitchCondProb.getUniqueAlphaSeq(j) + " " + pitchCondProb.getProbabilities(j));
+			}
+			System.out.println("\n------------\n");
+			System.out.println("Probability of Generated Rhythms after 10,000 iterations of 20 note melodies for order " + i + ":\n----Transition Table----");
+			makeSpace(i);
+			System.out.println(rhythmCondProb.getAlphabet());
+			for (int j = 0; j < rhythmCondProb.getUniqueAlphaSeqSize(); j++) {
 				System.out.println(rhythmCondProb.getUniqueAlphaSeq(j) + " " + rhythmCondProb.getProbabilities(j));
 			}
 			System.out.println("\n------------\n");
@@ -216,7 +243,6 @@ public class UnitTests extends PApplet {
 	void trainP2() {
 		markovPitchGen.train(midiNotes.getPitchArray());
 		markovRhythmGen.train(midiNotes.getRhythmArray());
-		
 		initPitchGen.train(midiNotes.getPitchArray()); // must train to get initial pitch
 		initRhythmGen.train(midiNotes.getRhythmArray()); // must train to get initial rhythm
 	}
@@ -226,6 +252,10 @@ public class UnitTests extends PApplet {
 		orderMRhythmGen = new OrderMGenerator<Double>(i);
 		orderMPitchGen.train(midiNotes.getPitchArray());
 		orderMRhythmGen.train(midiNotes.getRhythmArray());
+		pitchCondProb = new OrderMGenerator<Integer>(i);
+		rhythmCondProb = new OrderMGenerator<Double>(i);
+		pitchCondProb.train(midiNotes.getPitchArray());
+		rhythmCondProb.train(midiNotes.getRhythmArray());	
 	}
 	
 	void newSong() {
